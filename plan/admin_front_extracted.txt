@@ -1,0 +1,364 @@
+Соотношения тегов и русских названий на фронте
+
+enum русский
+DEPOSIT_PROCESSING_DELAY Задержка обработки депозитов
+WITHDRAWAL_PROCESSING_DELAY Задержка обработки выводов
+WRONG_DEPOSIT_REJECTION_BEFORE_3_HOURS Неправильная отмена депозита до 3 часов
+WRONG_DEPOSIT_REJECTION_BEFORE_10_MINUTES Неправильная отмена депозита до 10 минут
+APPROVED_DEPOSIT_ABOVE_LIMIT Одобрение депозита выше лимита
+APPROVED_DEPOSIT_BELOW_LIMIT Одобрение депозита ниже лимита
+NOT_USING_FRAUD_CHAT Не использует беседу Fraud
+NOT_SPECIFYING_ORIGINAL_FOR_DUPLICATES Не указывает оригиналы при дубликатах
+HIGH_DEPOSIT_CANCELLATION_RATE Высокий процент отмен депозитов
+HIGH_WITHDRAWAL_CANCELLATION_RATE Высокий процент отмен выводов
+NOT_REQUESTING_TRAFFIC_STOP Не просит закрыть трафик при проблемах
+
+Енамки
+enum ComplaintPeriod {
+  WEEK = 'week',
+  MONTH = 'month',
+  ALL = 'all',
+}
+
+AgentCountry {
+  KYRGYZSTAN = 'KYRGYZSTAN',
+  ETHIOPIA = 'ETHIOPIA',
+}
+
+enum ComplaintTag {
+  DEPOSIT_PROCESSING_DELAY = 'DEPOSIT_PROCESSING_DELAY',
+  WITHDRAWAL_PROCESSING_DELAY = 'WITHDRAWAL_PROCESSING_DELAY',
+  WRONG_DEPOSIT_REJECTION_BEFORE_3_HOURS = 'WRONG_DEPOSIT_REJECTION_BEFORE_3_HOURS',
+  WRONG_DEPOSIT_REJECTION_BEFORE_10_MINUTES = 'WRONG_DEPOSIT_REJECTION_BEFORE_10_MINUTES',
+  APPROVED_DEPOSIT_ABOVE_LIMIT = 'APPROVED_DEPOSIT_ABOVE_LIMIT',
+  APPROVED_DEPOSIT_BELOW_LIMIT = 'APPROVED_DEPOSIT_BELOW_LIMIT',
+  NOT_USING_FRAUD_CHAT = 'NOT_USING_FRAUD_CHAT',
+  NOT_SPECIFYING_ORIGINAL_FOR_DUPLICATES = 'NOT_SPECIFYING_ORIGINAL_FOR_DUPLICATES',
+  HIGH_DEPOSIT_CANCELLATION_RATE = 'HIGH_DEPOSIT_CANCELLATION_RATE',
+  HIGH_WITHDRAWAL_CANCELLATION_RATE = 'HIGH_WITHDRAWAL_CANCELLATION_RATE',
+  NOT_REQUESTING_TRAFFIC_STOP = 'NOT_REQUESTING_TRAFFIC_STOP',
+}
+
+Базовый URL:
+http://localhost:3000
+
+1. Авторизация
+POST /auth/login
+Проверяет логин и пароль из .env.
+
+Request:
+POST /auth/login
+Content-Type: application/json
+{
+  "login": "admin",
+  "password": "supersecret"
+}
+
+Response:
+{
+  "success": true
+}
+
+или
+
+{
+  "success": false
+}
+
+2. Создание агента
+POST /agents
+Создает нового агента.
+
+Request:
+POST /agents
+Content-Type: application/json
+{
+  "name": "Agent Test",
+  "country": "KYRGYZSTAN"
+}
+
+Response:
+{
+  "id": "12345678910",
+  "name": "Agent Test",
+  "country": "KYRGYZSTAN",
+  "goodQualitiesText": null,
+  "badQualitiesText": null,
+  "generalNotesText": null,
+  "createdAt": "2026-03-07T12:00:00.000Z"
+}
+
+Если агент с таким именем уже существует:
+{
+  "statusCode": 409,
+  "message": "Agent with this name already exists",
+  "error": "Conflict"
+}
+
+3. Поиск агентов
+GET /agents/search?query=
+Ищет по id или по name.
+
+Request:
+GET /agents/search?query=agent
+
+Response:
+[
+  {
+    "id": "12345678910",
+    "name": "Agent Test",
+    "country": "KYRGYZSTAN",
+    "createdAt": "2026-03-07T12:00:00.000Z"
+  },
+  {
+    "id": "12345678911",
+    "name": "Agent Test Two",
+    "country": "ETHIOPIA",
+    "createdAt": "2026-03-07T12:05:00.000Z"
+  }
+]
+
+4. Получение карточки агента
+GET /agents/:id
+Возвращает полную карточку агента.
+
+Request:
+GET /agents/12345678910
+
+Response:
+{
+  "id": "12345678910",
+  "name": "Agent Test",
+  "country": "KYRGYZSTAN",
+  "goodQualitiesText": "Быстро отвечает",
+  "badQualitiesText": "Иногда задерживает заявки",
+  "generalNotesText": "Нужно следить за лимитами",
+  "createdAt": "2026-03-07T12:00:00.000Z"
+}
+
+Если агент не найден:
+{
+  "statusCode": 404,
+  "message": "Agent not found",
+  "error": "Not Found"
+}
+
+5. Обновление заметок агента
+PATCH /agents/:id/notes
+Обновляет текстовые поля карточки агента.
+Можно отправлять как все 3 поля, так и только часть.
+
+Request:
+PATCH /agents/12345678910/notes
+Content-Type: application/json
+{
+  "goodQualitiesText": "Быстро отвечает",
+  "badQualitiesText": "Иногда задерживает заявки",
+  "generalNotesText": "Нужно следить за лимитами"
+}
+
+Response:
+{
+  "id": "12345678910",
+  "name": "Agent Test",
+  "country": "KYRGYZSTAN",
+  "goodQualitiesText": "Быстро отвечает",
+  "badQualitiesText": "Иногда задерживает заявки",
+  "generalNotesText": "Нужно следить за лимитами",
+  "createdAt": "2026-03-07T12:00:00.000Z"
+}
+
+Пример частичного обновления:
+PATCH /agents/12345678910/notes
+Content-Type: application/json
+{
+  "generalNotesText": "Обновленная общая заметка"
+}
+
+Response:
+{
+  "id": "12345678910",
+  "name": "Agent Test",
+  "country": "KYRGYZSTAN",
+  "goodQualitiesText": "Быстро отвечает",
+  "badQualitiesText": "Иногда задерживает заявки",
+  "generalNotesText": "Обновленная общая заметка",
+  "createdAt": "2026-03-07T12:00:00.000Z"
+}
+
+Если агент не найден:
+{
+  "statusCode": 404,
+  "message": "Agent not found",
+  "error": "Not Found"
+}
+
+6. Создание жалобы
+POST /complaints
+Создает жалобу на агента.
+Одна жалоба может содержать один или несколько тегов.
+
+Request:
+POST /complaints
+Content-Type: application/json
+{
+  "agentId": "12345678910",
+  "tags": [
+    "DEPOSIT_PROCESSING_DELAY",
+    "NOT_USING_FRAUD_CHAT"
+  ],
+  "comment": "За смену несколько ошибок"
+}
+
+Response:
+{
+  "id": "2f3b8d8d-2b76-4af9-9f55-6d2f3b5f8c11",
+  "agentId": "12345678910",
+  "tags": [
+    "DEPOSIT_PROCESSING_DELAY",
+    "NOT_USING_FRAUD_CHAT"
+  ],
+  "comment": "За смену несколько ошибок",
+  "createdAt": "2026-03-07T12:20:00.000Z"
+}
+
+Если агент не найден:
+{
+  "statusCode": 404,
+  "message": "Agent not found",
+  "error": "Not Found"
+}
+
+Если в массиве tags есть дубли:
+{
+  "statusCode": 400,
+  "message": [
+    "All tags's elements must be unique"
+  ],
+  "error": "Bad Request"
+}
+
+7. Получение списка жалоб агента
+GET /complaints/agent/:agentId
+Поддерживает пагинацию и фильтр по периоду.
+
+Query params:
+- period=week | month | all
+- page=1
+- limit=20
+
+Пример запроса:
+GET /complaints/agent/12345678910?period=all&page=1&limit=20
+
+Response:
+{
+  "page": 1,
+  "limit": 20,
+  "total": 3,
+  "items": [
+    {
+      "id": "2f3b8d8d-2b76-4af9-9f55-6d2f3b5f8c11",
+      "agentId": "12345678910",
+      "tags": [
+        "DEPOSIT_PROCESSING_DELAY",
+        "NOT_USING_FRAUD_CHAT"
+      ],
+      "comment": "За смену несколько ошибок",
+      "createdAt": "2026-03-07T12:20:00.000Z"
+    },
+    {
+      "id": "c9e0f7aa-6a1d-4c0a-a58d-0b8b1dc49c6e",
+      "agentId": "12345678910",
+      "tags": [
+        "WITHDRAWAL_PROCESSING_DELAY"
+      ],
+      "comment": "Отдельная жалоба",
+      "createdAt": "2026-03-07T11:10:00.000Z"
+    }
+  ]
+}
+
+Если агент не найден:
+{
+  "statusCode": 404,
+  "message": "Agent not found",
+  "error": "Not Found"
+}
+
+8. Получение статистики по агенту
+GET /complaints/agent/:agentId/stats
+Возвращает сразу 2 блока:
+- week
+- month
+
+Важно:
+статистика считается по количеству тегов, а не по количеству жалоб.
+
+Пример запроса:
+GET /complaints/agent/12345678910/stats
+
+Response:
+{
+  "week": {
+    "total": 5,
+    "items": [
+      {
+        "tag": "DEPOSIT_PROCESSING_DELAY",
+        "count": 2,
+        "percent": 40
+      },
+      {
+        "tag": "NOT_USING_FRAUD_CHAT",
+        "count": 2,
+        "percent": 40
+      },
+      {
+        "tag": "NOT_REQUESTING_TRAFFIC_STOP",
+        "count": 1,
+        "percent": 20
+      }
+    ]
+  },
+  "month": {
+    "total": 8,
+    "items": [
+      {
+        "tag": "DEPOSIT_PROCESSING_DELAY",
+        "count": 3,
+        "percent": 37.5
+      },
+      {
+        "tag": "NOT_USING_FRAUD_CHAT",
+        "count": 2,
+        "percent": 25
+      },
+      {
+        "tag": "WITHDRAWAL_PROCESSING_DELAY",
+        "count": 2,
+        "percent": 25
+      },
+      {
+        "tag": "NOT_REQUESTING_TRAFFIC_STOP",
+        "count": 1,
+        "percent": 12.5
+      }
+    ]
+  }
+}
+
+Если агент не найден:
+{
+  "statusCode": 404,
+  "message": "Agent not found",
+  "error": "Not Found"
+}
+
+Текущие endpoints:
+POST /auth/login
+POST /agents
+GET /agents/search?query=
+GET /agents/:id
+PATCH /agents/:id/notes
+POST /complaints
+GET /complaints/agent/:agentId?period=week|month|all&page=1&limit=20
+GET /complaints/agent/:agentId/stats
