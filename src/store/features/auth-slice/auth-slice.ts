@@ -1,10 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { AuthState, User } from './auth-types';
 import { login, logout, getCurrentUser } from './auth-thunks';
+import { authStorage } from './auth-storage';
 
 const initialState: AuthState = {
   user: null,
-  isAuthenticated: false,
+  isAuthenticated: authStorage.isAuthenticated(),
   loading: false,
   error: null,
 };
