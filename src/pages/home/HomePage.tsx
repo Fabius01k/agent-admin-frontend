@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { searchAgents } from '@store/features/agents-slice/agents-thunks';
 import { paths } from '@router/path';
 import type { AppDispatch, RootState } from '@store/store';
-import { AgentCountry, countryLabels } from '@store/types/enums';
+import { countryLabels } from '@store/types/enums';
 import { AddAgentModal } from '@components/AddAgentModal/AddAgentModal';
 import './HomePage.scss';
 
@@ -14,11 +14,6 @@ export const HomePage = () => {
   const { searchResults, loading } = useSelector((state: RootState) => state.agents);
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-
-  useEffect(() => {
-    // Load all agents on mount with minimal query
-    dispatch(searchAgents('a'));
-  }, [dispatch]);
 
   const handleSearch = () => {
     dispatch(searchAgents(searchQuery.trim()));

@@ -5,7 +5,7 @@ import { getAgentById, updateAgentNotes } from '@store/features/agents-slice/age
 import { getAgentComplaints, getAgentStats, createComplaint } from '@store/features/complaints-slice/complaints-thunks';
 import { paths } from '@router/path';
 import type { AppDispatch, RootState } from '@store/store';
-import { ComplaintPeriod, AgentCountry, ComplaintTag, complaintTagLabels, countryLabels } from '@store/types/enums';
+import { ComplaintPeriod, ComplaintTag, complaintTagLabels, countryLabels } from '@store/types/enums';
 import './ActorPage.scss';
 
 export const ActorPage = () => {
@@ -17,15 +17,26 @@ export const ActorPage = () => {
   const { currentAgent, loading: agentLoading } = useSelector((state: RootState) => state.agents);
   const { stats, complaints, loading: complaintsLoading } = useSelector((state: RootState) => state.complaints);
 
-  const [notes, setNotes] = useState({
-    goodQualitiesText: '',
-    badQualitiesText: '',
-    generalNotesText: '',
-  });
+  const [notes, setNotes] = useState(() => ({
+    goodQualitiesText: currentAgent?.goodQualitiesText || '',
+    badQualitiesText: currentAgent?.badQualitiesText || '',
+    generalNotesText: currentAgent?.generalNotesText || '',
+  }));
 
-  const [selectedTag, setSelectedTag] = useState<ComplaintTag>(ComplaintTag.DEPOSIT_PROCESSING_DELAY);
+  const [selectedTags, setSelectedTags] = useState<ComplaintTag[]>([]);
   const [complaintComment, setComplaintComment] = useState('');
   const [isCreatingComplaint, setIsCreatingComplaint] = useState(false);
+
+  // Update notes when switching to a different agent
+  useEffect(() => {
+    if (currentAgent) {
+      setNotes({
+        goodQualitiesText: currentAgent.goodQualitiesText || '',
+        badQualitiesText: currentAgent.badQualitiesText || '',
+        generalNotesText: currentAgent.generalNotesText || '',
+      });
+    }
+  }, [currentAgent?.id]);
 
   useEffect(() => {
     if (isCreatingComplaint && complaintsSectionRef.current) {
@@ -41,16 +52,6 @@ export const ActorPage = () => {
     }
   }, [dispatch, id]);
 
-  useEffect(() => {
-    if (currentAgent) {
-      setNotes({
-        goodQualitiesText: currentAgent.goodQualitiesText || '',
-        badQualitiesText: currentAgent.badQualitiesText || '',
-        generalNotesText: currentAgent.generalNotesText || '',
-      });
-    }
-  }, [currentAgent]);
-
   const handleSaveNotes = () => {
     if (id) {
       dispatch(updateAgentNotes({ id, data: notes }));
@@ -58,10 +59,11 @@ export const ActorPage = () => {
   };
 
   const handleCreateComplaint = async () => {
+    if (selectedTags.length === 0 || !complaintComment.trim()) return;
     if (id) {
       const result = await dispatch(createComplaint({
         agentId: id,
-        tags: [selectedTag],
+        tags: selectedTags,
         comment: complaintComment || undefined,
       }));
       if (createComplaint.fulfilled.match(result)) {
@@ -70,6 +72,7 @@ export const ActorPage = () => {
       }
       setIsCreatingComplaint(false);
       setComplaintComment('');
+      setSelectedTags([]);
     }
   };
 
@@ -159,13 +162,13 @@ export const ActorPage = () => {
         {/* General Notes */}
         <section className="actor-page__section">
           <h2 className="actor-page__section-title">Общие заметки</h2>
-          <input
-            type="text"
-            className="actor-page__general-input"
+          <textarea
+            className="actor-page__general-textarea"
             value={notes.generalNotesText}
             onChange={(e) => setNotes({ ...notes, generalNotesText: e.target.value })}
             onBlur={handleSaveNotes}
             placeholder="Добавьте общие заметки о сотруднике..."
+            rows={3}
           />
         </section>
 
@@ -236,18 +239,25 @@ export const ActorPage = () => {
           <h2 className="actor-page__section-title">Создать жалобу</h2>
           <div className="actor-page__complaint-form">
             <div className="actor-page__form-row">
-              <label className="actor-page__form-label">Выберите жалобу</label>
-              <select
-                className="actor-page__form-select"
-                value={selectedTag}
-                onChange={(e) => setSelectedTag(e.target.value as ComplaintTag)}
-              >
+              <label className="actor-page__form-label">Выберите жалобы</label>
+              <div className="actor-page__tags-list">
                 {Object.values(ComplaintTag).map((tag) => (
-                  <option key={tag} value={tag}>
-                    {complaintTagLabels[tag]}
-                  </option>
+                  <label key={tag} className="actor-page__tag-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={selectedTags.includes(tag)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedTags([...selectedTags, tag]);
+                        } else {
+                          setSelectedTags(selectedTags.filter((t) => t !== tag));
+                        }
+                      }}
+                    />
+                    <span>{complaintTagLabels[tag]}</span>
+                  </label>
                 ))}
-              </select>
+              </div>
             </div>
             <div className="actor-page__form-row">
               <textarea
@@ -262,7 +272,7 @@ export const ActorPage = () => {
               <button
                 className="actor-page__submit-button"
                 onClick={handleCreateComplaint}
-                disabled={complaintsLoading}
+                disabled={complaintsLoading || selectedTags.length === 0 || !complaintComment.trim()}
               >
                 {complaintsLoading ? (
                   <div className="actor-page__button-spinner">
