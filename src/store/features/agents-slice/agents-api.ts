@@ -22,7 +22,7 @@ export const agentsApi = {
   },
 
   async updateNotes(id: string, data: UpdateAgentNotesDto): Promise<Agent> {
-    const response = await api.patch<Agent>(`/agents/${id}/notes`, data);
+    const response = await api.put<Agent>(`/agents/${id}/notes`, data);
     return response.data;
   },
 };

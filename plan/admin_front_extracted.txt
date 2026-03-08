@@ -144,12 +144,12 @@ Response:
 }
 
 5. Обновление заметок агента
-PATCH /agents/:id/notes
+PUT /agents/:id/notes
 Обновляет текстовые поля карточки агента.
 Можно отправлять как все 3 поля, так и только часть.
 
 Request:
-PATCH /agents/12345678910/notes
+PUT /agents/12345678910/notes
 Content-Type: application/json
 {
   "goodQualitiesText": "Быстро отвечает",
@@ -169,7 +169,7 @@ Response:
 }
 
 Пример частичного обновления:
-PATCH /agents/12345678910/notes
+PUT /agents/12345678910/notes
 Content-Type: application/json
 {
   "generalNotesText": "Обновленная общая заметка"
@@ -358,7 +358,7 @@ POST /auth/login
 POST /agents
 GET /agents/search?query=
 GET /agents/:id
-PATCH /agents/:id/notes
+PUT /agents/:id/notes
 POST /complaints
 GET /complaints/agent/:agentId?period=week|month|all&page=1&limit=20
 GET /complaints/agent/:agentId/stats
