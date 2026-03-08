@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAgentById, updateAgentNotes } from '@store/features/agents-slice/agents-thunks';
@@ -12,10 +12,11 @@ export const ActorPage = () => {
   const { id } = useParams<{ id: string }>();
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  
+  const complaintsSectionRef = useRef<HTMLDivElement>(null);
+
   const { currentAgent, loading: agentLoading } = useSelector((state: RootState) => state.agents);
   const { stats, complaints, loading: complaintsLoading } = useSelector((state: RootState) => state.complaints);
-  
+
   const [notes, setNotes] = useState({
     goodQualitiesText: '',
     badQualitiesText: '',
@@ -25,6 +26,12 @@ export const ActorPage = () => {
   const [selectedTag, setSelectedTag] = useState<ComplaintTag>(ComplaintTag.DEPOSIT_PROCESSING_DELAY);
   const [complaintComment, setComplaintComment] = useState('');
   const [isCreatingComplaint, setIsCreatingComplaint] = useState(false);
+
+  useEffect(() => {
+    if (isCreatingComplaint && complaintsSectionRef.current) {
+      complaintsSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [isCreatingComplaint]);
 
   useEffect(() => {
     if (id) {
@@ -288,7 +295,7 @@ export const ActorPage = () => {
 
         {/* All Complaints List */}
         {isCreatingComplaint && (
-          <section className="actor-page__section">
+          <section className="actor-page__section" ref={complaintsSectionRef}>
             <h2 className="actor-page__section-title">Все жалобы</h2>
             {complaintsLoading ? (
               <div className="actor-page__loading-small">
