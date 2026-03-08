@@ -5,7 +5,8 @@ import { HomePage } from '@pages/home/HomePage';
 import { AuthPage } from '@pages/auth/AuthPage';
 import { ActorPage } from '@pages/actor/ActorPage';
 
-export const router = createBrowserRouter([
+export const router = createBrowserRouter(
+  [
   {
     path: paths.root,
     element: (
@@ -26,4 +27,6 @@ export const router = createBrowserRouter([
     path: paths.auth,
     element: <AuthPage />,
   },
-]);
+  ],
+  { basename: '/agent-admin-frontend/' },
+);
