@@ -55,13 +55,17 @@ export const ActorPage = () => {
     }
   };
 
-  const handleCreateComplaint = () => {
+  const handleCreateComplaint = async () => {
     if (id) {
-      dispatch(createComplaint({
+      const result = await dispatch(createComplaint({
         agentId: id,
         tags: [selectedTag],
         comment: complaintComment || undefined,
       }));
+      if (createComplaint.fulfilled.match(result)) {
+        dispatch(getAgentStats(id));
+        dispatch(getAgentComplaints({ agentId: id, period: ComplaintPeriod.ALL }));
+      }
       setIsCreatingComplaint(false);
       setComplaintComment('');
     }
@@ -256,12 +260,21 @@ export const ActorPage = () => {
               <button
                 className="actor-page__submit-button"
                 onClick={handleCreateComplaint}
+                disabled={complaintsLoading}
               >
-                Добавить
+                {complaintsLoading ? (
+                  <div className="actor-page__button-spinner">
+                    <div className="actor-page__spinner-button"></div>
+                    <span>Отправка...</span>
+                  </div>
+                ) : (
+                  'Добавить'
+                )}
               </button>
               <button
                 className="actor-page__link-button"
                 onClick={() => setIsCreatingComplaint(!isCreatingComplaint)}
+                disabled={complaintsLoading}
               >
                 Показать все жалобы агента
                 <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
