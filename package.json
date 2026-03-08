@@ -2,10 +2,12 @@
   "name": "agent-frontend-2",
   "private": true,
   "version": "0.0.0",
+  "homepage": "https://fabius01k.github.io/agent-admin-frontend",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
+    "build:check": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
