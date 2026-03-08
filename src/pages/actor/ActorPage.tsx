@@ -5,13 +5,8 @@ import { getAgentById, updateAgentNotes } from '@store/features/agents-slice/age
 import { getAgentComplaints, getAgentStats, createComplaint } from '@store/features/complaints-slice/complaints-thunks';
 import { paths } from '@router/path';
 import type { AppDispatch, RootState } from '@store/store';
-import { ComplaintPeriod, AgentCountry, ComplaintTag, complaintTagLabels } from '@store/types/enums';
+import { ComplaintPeriod, AgentCountry, ComplaintTag, complaintTagLabels, countryLabels } from '@store/types/enums';
 import './ActorPage.scss';
-
-const countryLabels: Record<AgentCountry, string> = {
-  [AgentCountry.KYRGYZSTAN]: 'Кыргызстан',
-  [AgentCountry.ETHIOPIA]: 'Эфиопия',
-};
 
 export const ActorPage = () => {
   const { id } = useParams<{ id: string }>();

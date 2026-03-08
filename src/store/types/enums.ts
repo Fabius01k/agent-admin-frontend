@@ -23,6 +23,11 @@ export enum AgentCountry {
   ETHIOPIA = 'ETHIOPIA',
 }
 
+export const countryLabels: Record<AgentCountry, string> = {
+  [AgentCountry.KYRGYZSTAN]: 'Кыргызстан',
+  [AgentCountry.ETHIOPIA]: 'Эфиопия',
+};
+
 export const complaintTagLabels: Record<ComplaintTag, string> = {
   [ComplaintTag.DEPOSIT_PROCESSING_DELAY]: 'Задержка обработки депозитов',
   [ComplaintTag.WITHDRAWAL_PROCESSING_DELAY]: 'Задержка обработки выводов',

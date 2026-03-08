@@ -4,14 +4,9 @@ import { useNavigate } from 'react-router';
 import { searchAgents } from '@store/features/agents-slice/agents-thunks';
 import { paths } from '@router/path';
 import type { AppDispatch, RootState } from '@store/store';
-import { AgentCountry } from '@store/types/enums';
+import { AgentCountry, countryLabels } from '@store/types/enums';
 import { AddAgentModal } from '@components/AddAgentModal/AddAgentModal';
 import './HomePage.scss';
-
-const countryLabels: Record<AgentCountry, string> = {
-  [AgentCountry.KYRGYZSTAN]: 'Кыргызстан',
-  [AgentCountry.ETHIOPIA]: 'Эфиопия',
-};
 
 export const HomePage = () => {
   const dispatch = useDispatch<AppDispatch>();
